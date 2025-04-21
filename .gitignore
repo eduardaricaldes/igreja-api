@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+.pnpm/
+*.log
+db-data/
+.prisma/
+
