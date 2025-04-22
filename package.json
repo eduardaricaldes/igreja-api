@@ -3,9 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/server.ts",
-  "scripts": {
-    "build": "tsc"
-  },
+ "scripts": {
+  "dev": "npx tsx watch src/server.ts",
+  "build": "tsc",
+  "start": "node dist/server.js",
+  "migrate": "npx prisma migrate dev",
+  "generate": "npx prisma generate",
+  "studio": "npx prisma studio"
+},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/eduardaricaldes/igreja-api.git"
