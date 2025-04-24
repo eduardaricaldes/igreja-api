@@ -7,49 +7,87 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
+model Events {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  startDate   DateTime @map("start_date")
+  endDate     DateTime @map("end_date")
+  location    String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdBy   String?  @map("created_by")
 
-  person   Person? @relation(fields: [personId], references: [id])
-  personId String? @unique
+  ResponsibilityEvents     ResponsibilityEvents[]
+  EventPartipantAssignment EventPartipantAssignment[]
+
+  @@map("events")
 }
 
-model Person {
-  id        String    @id @default(uuid())
-  name      String
-  email     String?   @unique
-  phone     String?
-  birthDate DateTime?
+model ResponsibilityEvents {
+  id        String   @id @default(uuid())
+  eventId   String
+  userId    String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  user  User?
-  roles PersonRole[]
+  event Events @relation(fields: [eventId], references: [id])
+  user  Users  @relation(fields: [userId], references: [id])
+
+  @@map("responsibility_events")
+}
+
+model Participant {
+  id        String   @id @default(uuid())
+  eventId   String   @map("event_id")
+  firstName String
+  lastName  String
+  email     String   @unique
+  createdAt DateTime @default(now())
+  createdBy String?  @map("created_by")
+
+  EventPartipantAssignment EventPartipantAssignment[]
+
+  @@map("participant")
+}
+
+model EventPartipantAssignment {
+  id            String   @id @default(uuid())
+  eventId       String   @map("event_id")
+  participantId String   @map("participant_id")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  event       Events      @relation(fields: [eventId], references: [id])
+  participant Participant @relation(fields: [participantId], references: [id])
+
+  @@map("event_participant_assignment")
+}
+
+model Users {
+  id        String   @id @default(uuid())
+  firstName String
+  lastName  String
+  email     String   @unique
+  password  String   @unique
+  phone     String?
+  createdAt DateTime @default(now())
+
+  ResponsibilityEvents ResponsibilityEvents[]
+  Role                 Role[]
+
+  @@map("users")
 }
 
 model Role {
-  id          String       @id @default(uuid())
-  name        String       @unique
+  id          String   @id @default(uuid())
+  UserId      String
+  name        String   @unique
   description String?
-  people      PersonRole[]
-}
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-model Department {
-  id          String       @id @default(uuid())
-  name        String       @unique
-  description String?
-  roles       PersonRole[]
-}
+  user Users @relation(fields: [UserId], references: [id])
 
-model PersonRole {
-  id           String   @id @default(uuid())
-  personId     String
-  roleId       String
-  departmentId String?
-  assignedAt   DateTime @default(now())
-
-  person     Person      @relation(fields: [personId], references: [id])
-  role       Role        @relation(fields: [roleId], references: [id])
-  department Department? @relation(fields: [departmentId], references: [id])
+  @@map("role")
 }
